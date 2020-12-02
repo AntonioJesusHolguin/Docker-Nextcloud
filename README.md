@@ -5,7 +5,8 @@ How to create a Docker container with Nextcloud
 
 1. [What's NextCloud](#what)
 2. [How to install NextCloud](#install)
-3. [References](#references)
+3. [How to access NextCloud](#acess)
+4. [References](#references)
 
 <a name="what"></a>
 ## 1. What's Nextcloud?
@@ -22,8 +23,16 @@ The original ownCloud developer Frank Karlitschek forked ownCloud and created Ne
 1.- First step is deploying the container. The image's name is nextcloud. I'll be using 8087 port for this guide, but you can use another one without any problems:
 
 ```
-docker run -d -p 8087:80 nextcloud
+version: '3'
+services:
+ mi-nextcloud:
+  image: nextcloud
+  ports:
+  - "8087:80"
 ```
+
+<a name="access"></a>
+## 3.- How to access NextCloud
 
 2.- Connect to nextcloud with localhost:[Port] to access your nextcloud container. The first thing we're going to do is create an admin user and install it:
 
