@@ -19,147 +19,23 @@ The original ownCloud developer Frank Karlitschek forked ownCloud and created Ne
 <a name="install"></a>
 ## 2.- How to install NextCloud
 
-1.- 
+1.- First step is deploying the container. The image's name is nextcloud. I'll be using 8087 port for this guide, but you can use another one without any problems:
 
 ```
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+docker run -d -p 8087:80 nextcloud
 ```
 
-2.- 
+2.- Connect to nextcloud with localhost:[Port] to access your nextcloud container. The first thing we're going to do is create an admin user and install it:
 
-```
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-```
+![/images/4a.png](/images/4a.png)
 
-3.- 
+3.- Nextcloud may take some time to complete the installation. If shouldn't take too long:
 
-```
-sudo apt update
-```
+![/images/4.png](/images/4b.png)
 
-4.- 
+4.- Once the install has been completed we'll be in nextcloud main page and it'll be ready to use:
 
-```
-sudo apt install docker-ce
-```
-
-5.-
-
-```
-$ sudo curl -L "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-$ docker-compose --version
-docker-compose version 1.25.4, build 8d51620a
-```
-
-6.-
-
-```
-$ docker network create nextcloud_network
-```
-
-7.-
-
-```
-$ vi docker-compose.yml
-```
-
-8.-
-
-```
-version: '3' 
-
-services:
-
-  proxy:
-    image: jwilder/nginx-proxy:alpine
-    labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
-    container_name: nextcloud-proxy
-    networks:
-      - nextcloud_network
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - ./proxy/conf.d:/etc/nginx/conf.d:rw
-      - ./proxy/vhost.d:/etc/nginx/vhost.d:rw
-      - ./proxy/html:/usr/share/nginx/html:rw
-      - ./proxy/certs:/etc/nginx/certs:ro
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    restart: unless-stopped
-  
-  letsencrypt:
-    image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nextcloud-letsencrypt
-    depends_on:
-      - proxy
-    networks:
-      - nextcloud_network
-    volumes:
-      - ./proxy/certs:/etc/nginx/certs:rw
-      - ./proxy/vhost.d:/etc/nginx/vhost.d:rw
-      - ./proxy/html:/usr/share/nginx/html:rw
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    restart: unless-stopped
-
-  db:
-    image: mariadb
-    container_name: nextcloud-mariadb
-    networks:
-      - nextcloud_network
-    volumes:
-      - db:/var/lib/mysql
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - MYSQL_ROOT_PASSWORD=toor
-      - MYSQL_PASSWORD=mysql
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-    restart: unless-stopped
-  
-  app:
-    image: nextcloud:latest
-    container_name: nextcloud-app
-    networks:
-      - nextcloud_network
-    depends_on:
-      - letsencrypt
-      - proxy
-      - db
-    volumes:
-      - nextcloud:/var/www/html
-      - ./app/config:/var/www/html/config
-      - ./app/custom_apps:/var/www/html/custom_apps
-      - ./app/data:/var/www/html/data
-      - ./app/themes:/var/www/html/themes
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - VIRTUAL_HOST=nextcloud.YOUR-DOMAIN
-      - LETSENCRYPT_HOST=nextcloud.YOUR-DOMAIN
-      - LETSENCRYPT_EMAIL=YOUR-EMAIL
-    restart: unless-stopped
-
-volumes:
-  nextcloud:
-  db:
-
-networks:
-  nextcloud_network:
-```
-
-9.-
-
-```
-docker-compose up -d
-```
-
-10.-
-
-```
-
-```
+![/images/4c.png](/images/4c.png)
 
 <a name="references"></a>
 ## 3.- References
